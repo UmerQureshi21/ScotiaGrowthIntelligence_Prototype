@@ -1,0 +1,15 @@
+{
+  "trained_on": "2026-05-24T09:21:43.697666",
+  "n_training_rows": 200000,
+  "n_test_rows": 50000,
+  "n_features": 65,
+  "readiness_model_name": "Logistic Regression",
+  "product_model_name": "HistGradientBoosting",
+  "channel_model_name": "HistGradientBoosting",
+  "readiness_roc_auc": 0.8383705333513437,
+  "readiness_recall": 0.539176877159912,
+  "product_f1_weighted": 0.7381355483982911,
+  "product_accuracy": 0.75302,
+  "channel_f1_weighted": 0.8627765887759201,
+  "channel_accuracy": 0.86288
+}
