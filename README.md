@@ -1,43 +1,48 @@
-# Banking UI Mockup
+# Scotia Growth Intelligence
 
-Visual-only banking app mockup for Chrome — no backend, no real data.
+CaseHacks 2026 · Scotiabank case · Team submission
 
-## Run in Chrome (localhost)
+An ML engine that catches young Scotia depositors at the moment they're ready to invest — before they leave for Wealthsimple. Predicts readiness, picks the right product, and routes the nudge through the right channel.
+
+**Team:** Abishek · Ahmed · Shervin · Umer
+
+
+
+## The model
+
+- **Readiness scoring** — Logistic Regression · 78% recall
+- **Product matching** — HistGradientBoosting · 6 classes (TFSA, FHSA, RRSP, Smart Investor, iTRADE, GIC)
+- **Channel selection** — HistGradientBoosting · 4 classes (in-app, email, SMS, advisor)
+
+Trained on 250,000 synthetic Scotia-style customer profiles with 65 features across behavioral, financial, relationship, and demographic signals.
+
+---
+
+## Run it
 
 ```bash
-cd web
-npm install
-npm run dev
+pip install pandas numpy scikit-learn matplotlib seaborn joblib
+jupyter notebook model_training.ipynb
 ```
 
-Opens at **http://localhost:5173** — a phone-sized banking UI centered on the page.
+Run all cells. Outputs save to `outputs/`. Total runtime ~15-20 min.
 
-## What works
+---
 
-- Red header with greeting + search
-- Attention card (expand/collapse → notification detail)
-- Recommendation banner (Dismiss / View Details → expand)
-- Account tabs, expandable banking rows, balances
-- Credit / Borrowing / Investments cards
-- Bottom tab navigation
-- Back navigation on detail screens
+## Use the trained models
 
-## Plug in your recommendation text
+```python
+import joblib, pandas as pd
 
-Edit `web/src/data/mockData.ts` → `recommendationOutput`:
+bundle = joblib.load('models/scotia_growth_intelligence_models.pkl')
 
-```ts
-export const recommendationOutput = {
-  summary: 'Your one-line output from your data pipeline',
-  detail: '...',
-  projectedOutcome: '...',
-  ctaLabel: 'Open iTRADE',
-  learnMoreUrl: 'https://...',
-};
+customer = pd.DataFrame([{...65 features...}])[bundle['feature_cols']]
+
+likelihood = bundle['readiness_model'].predict_proba(customer)[0, 1]
+product    = bundle['product_model'].predict(customer)[0]
+channel    = bundle['channel_model'].predict(customer)[0]
 ```
 
-## Project layout
+---
 
-```
-web/          ← Banking UI mockup (run this in Chrome)
-```
+*Built in 24 hours. Synthetic data for competition purposes only.*
