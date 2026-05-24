@@ -233,21 +233,18 @@ function AttentionCard({
   );
 }
 
+// Inline banner — Marcus (email channel) only
 function RecommendationBanner({
   persona,
-  depositTriggered,
   onCtaPress,
 }: {
   persona: Persona;
-  depositTriggered: boolean;
   onCtaPress: () => void;
 }) {
   const [dismissed, setDismissed] = useState(false);
   const rec = persona.recommendation;
-  const isInApp = persona.modelOutput.channel === 'in-app card';
-
+  if (persona.modelOutput.channel === 'in-app card') return null;
   if (dismissed) return null;
-  if (isInApp && !depositTriggered) return null;
 
   return (
     <div className="rec-wrap">
@@ -267,6 +264,42 @@ function RecommendationBanner({
         </div>
       </div>
     </div>
+  );
+}
+
+// Bottom sheet modal — Sarah (in-app card) only
+function RecommendationBottomSheet({
+  persona,
+  onDismiss,
+  onContinue,
+}: {
+  persona: Persona;
+  onDismiss: () => void;
+  onContinue: () => void;
+}) {
+  const rec = persona.recommendation;
+  return (
+    <>
+      <div className="sheet-backdrop" onClick={onDismiss} />
+      <div className="bottom-sheet">
+        <div className="sheet-handle" />
+        <div className="rec-header" style={{ marginBottom: 10 }}>
+          <span className="rec-icon">✦</span>
+          <p className="rec-summary">{rec.summary}</p>
+        </div>
+        <p className="rec-detail" style={{ marginBottom: 16 }}>{rec.detail}</p>
+        <div className="outcome-box" style={{ marginBottom: 20 }}>
+          <p className="outcome-label">Projected outcome</p>
+          <p className="outcome-text">{rec.projectedOutcome}</p>
+        </div>
+        <button type="button" className="btn-primary" onClick={onContinue}>
+          See how it works →
+        </button>
+        <button type="button" className="btn-text-muted" style={{ width: '100%', marginTop: 12, padding: '8px' }} onClick={onDismiss}>
+          Dismiss
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -381,7 +414,7 @@ function HomeScreen({
     <div className="phone-content">
       <Header persona={persona} />
       <AttentionCard persona={persona} onItemPress={onNotificationPress} />
-      <RecommendationBanner persona={persona} depositTriggered={depositTriggered} onCtaPress={onInvestmentPress} />
+      <RecommendationBanner persona={persona} onCtaPress={onInvestmentPress} />
       <AccountOverviewCard
         persona={persona}
         depositTriggered={depositTriggered}
@@ -726,6 +759,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('home');
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [triggered, setTriggered] = useState<Record<'sarah' | 'marcus', boolean>>({ sarah: false, marcus: false });
+  const [recDismissed, setRecDismissed] = useState(false);
   const [emailStatus, setEmailStatus] = useState<EmailStatus>('idle');
 
   const persona = activePersona === 'sarah' ? sarahPersona : marcusPersona;
@@ -735,6 +769,7 @@ export default function App() {
     setActivePersona(p);
     setOverlay(null);
     setActiveTab('home');
+    setRecDismissed(false);
   };
 
   const handleTrigger = async () => {
@@ -843,6 +878,13 @@ export default function App() {
         )}
         {overlay?.type === 'investment' && (
           <EmailConfirmationScreen persona={persona} onBack={() => setOverlay(null)} />
+        )}
+        {activePersona === 'sarah' && depositTriggered && !recDismissed && !overlay && (
+          <RecommendationBottomSheet
+            persona={persona}
+            onDismiss={() => setRecDismissed(true)}
+            onContinue={() => { setRecDismissed(true); setOverlay({ type: 'explainer' }); }}
+          />
         )}
       </div>
     </div>
