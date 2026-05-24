@@ -65,3 +65,5 @@ coverage/
 # Optional: lockfile noise from other package managers (keep package-lock.json)
 # pnpm-lock.yaml
 # yarn.lock
+
+.claude

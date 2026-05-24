@@ -21,47 +21,100 @@ export interface RecommendationOutput {
   learnMoreUrl: string;
 }
 
-export const userProfile = {
-  firstName: 'Muhammad Ahmed',
-  greeting: () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+export interface Persona {
+  userProfile: { firstName: string };
+  accounts: Account[];
+  notifications: NotificationItem[];
+  recommendation: RecommendationOutput;
+  financialSections: { id: string; title: string; subtitle: string; cta: string }[];
+  modelOutput: {
+    likelihood: number;
+    product: string;
+    channel: string;
+    trigger: string;
+  };
+}
+
+const greeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+};
+export { greeting };
+
+export const ahmedPersona: Persona = {
+  userProfile: { firstName: 'Muhammad Ahmed' },
+  accounts: [
+    { id: '1', name: 'Preferred Package', balance: 12450.32, type: 'Chequing' },
+    { id: '2', name: 'Money Master', balance: 8320.75, type: 'Savings' },
+  ],
+  notifications: [
+    {
+      id: '1',
+      title: 'Verify your contact information',
+      description: 'Please confirm your email and phone number to keep your account secure.',
+      date: 'Today',
+    },
+  ],
+  recommendation: {
+    summary: 'Invest $25 into your TFSA using iTRADE',
+    detail:
+      'Based on your monthly cash flow, you have surplus savings that could grow tax-free in a TFSA. Starting with $25/month builds the habit without impacting day-to-day spending.',
+    projectedOutcome:
+      'At 6% annual return, $25/month over 10 years could grow to approximately $4,100 — all tax-free.',
+    ctaLabel: 'Open iTRADE',
+    learnMoreUrl: 'https://example.com/tfsa-basics',
+  },
+  financialSections: [
+    { id: 'credit', title: 'Credit cards', subtitle: '$2,847.50 balance', cta: 'Pay now' },
+    { id: 'borrow', title: 'Borrowing', subtitle: '$15,200.00 outstanding', cta: 'View details' },
+    { id: 'invest', title: 'Investments', subtitle: '$3,420.00 portfolio value', cta: 'Explore' },
+  ],
+  modelOutput: {
+    likelihood: 0.81,
+    product: 'TFSA',
+    channel: 'in-app card',
+    trigger: 'Tax refund deposit detected',
   },
 };
 
-export const accounts: Account[] = [
-  { id: '1', name: 'Preferred Package', balance: 12450.32, type: 'Chequing' },
-  { id: '2', name: 'Money Master', balance: 8320.75, type: 'Savings' },
-];
+export const marcusPersona: Persona = {
+  userProfile: { firstName: 'Marcus' },
+  accounts: [
+    { id: '1', name: 'Preferred Package', balance: 9810.44, type: 'Chequing' },
+    { id: '2', name: 'Money Master', balance: 5240.00, type: 'Savings' },
+  ],
+  notifications: [],
+  recommendation: {
+    summary: 'Your rising income means bigger RRSP tax savings — start now',
+    detail:
+      'Your salary has grown 15% over the last 3 months. An RRSP contribution reduces your taxable income dollar-for-dollar. Starting at $50/month locks in savings before the March deadline.',
+    projectedOutcome:
+      'At 6% annual return, $50/month over 20 years grows to ~$23,000 — plus a tax refund this spring based on your income bracket.',
+    ctaLabel: 'Open Smart Investor',
+    learnMoreUrl: 'https://example.com/rrsp-basics',
+  },
+  financialSections: [
+    { id: 'credit', title: 'Credit cards', subtitle: '$1,240.00 balance', cta: 'Pay now' },
+    { id: 'borrow', title: 'Borrowing', subtitle: '$8,500.00 outstanding', cta: 'View details' },
+    { id: 'invest', title: 'Investments', subtitle: 'No investments yet', cta: 'Get started' },
+  ],
+  modelOutput: {
+    likelihood: 0.67,
+    product: 'RRSP',
+    channel: 'email + advisor',
+    trigger: 'Salary growth pattern detected',
+  },
+};
 
+// Legacy exports so nothing else breaks
+export const userProfile = { firstName: ahmedPersona.userProfile.firstName, greeting };
+export const accounts = ahmedPersona.accounts;
 export const totalBalance = accounts.reduce((sum, a) => sum + a.balance, 0);
-
-export const notifications: NotificationItem[] = [
-  {
-    id: '1',
-    title: 'Verify your contact information',
-    description: 'Please confirm your email and phone number to keep your account secure.',
-    date: 'Today',
-  },
-];
-
-export const recommendationOutput: RecommendationOutput = {
-  summary: 'Invest $25 into your TFSA using iTRADE',
-  detail:
-    'Based on your monthly cash flow, you have surplus savings that could grow tax-free in a TFSA. Starting with $25/month builds the habit without impacting day-to-day spending.',
-  projectedOutcome:
-    'At 6% annual return, $25/month over 10 years could grow to approximately $4,100 — all tax-free.',
-  ctaLabel: 'Open iTRADE',
-  learnMoreUrl: 'https://example.com/tfsa-basics',
-};
-
-export const financialSections = [
-  { id: 'credit', title: 'Credit cards', subtitle: '$2,847.50 balance', cta: 'Pay now' },
-  { id: 'borrow', title: 'Borrowing', subtitle: '$15,200.00 outstanding', cta: 'View details' },
-  { id: 'invest', title: 'Investments', subtitle: '$3,420.00 portfolio value', cta: 'Explore' },
-];
+export const notifications = ahmedPersona.notifications;
+export const recommendationOutput = ahmedPersona.recommendation;
+export const financialSections = ahmedPersona.financialSections;
 
 export const formatCurrency = (amount: number) =>
   amount.toLocaleString('en-CA', { style: 'currency', currency: 'CAD' });
