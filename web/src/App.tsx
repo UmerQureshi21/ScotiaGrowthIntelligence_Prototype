@@ -13,6 +13,8 @@ type TabId = 'home' | 'moveMoney' | 'advice' | 'scene' | 'more';
 type Overlay =
   | { type: 'account'; id: string }
   | { type: 'notification'; id: string }
+  | { type: 'explainer' }
+  | { type: 'account-open' }
   | { type: 'investment' }
   | null;
 type EmailStatus = 'idle' | 'waiting' | 'sending' | 'sent' | 'error';
@@ -240,9 +242,7 @@ function RecommendationBanner({
   depositTriggered: boolean;
   onCtaPress: () => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const [dontShow, setDontShow] = useState(false);
   const rec = persona.recommendation;
   const isInApp = persona.modelOutput.channel === 'in-app card';
 
@@ -256,54 +256,15 @@ function RecommendationBanner({
           <span className="rec-icon">✦</span>
           <p className="rec-summary">{rec.summary}</p>
         </div>
-
-        {expanded && (
-          <div className="rec-expanded">
-            <p className="rec-detail">{rec.detail}</p>
-            <div className="outcome-box">
-              <p className="outcome-label">Projected outcome</p>
-              <p className="outcome-text">{rec.projectedOutcome}</p>
-            </div>
-            <div className="video-placeholder">
-              <span className="video-play">▶</span>
-              <span className="video-label">30-sec: {persona.modelOutput.product} basics</span>
-              <div className="progress-bar">
-                <div className="progress-fill" />
-              </div>
-            </div>
-            <button type="button" className="btn-primary" onClick={onCtaPress}>
-              {rec.ctaLabel}
-            </button>
-            <a className="learn-more" href={rec.learnMoreUrl} target="_blank" rel="noreferrer">
-              Learn more
-            </a>
-            <label className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={dontShow}
-                onChange={(e) => setDontShow(e.target.checked)}
-              />
-              Do not show again
-            </label>
-          </div>
-        )}
-
-        {!expanded && (
-          <div className="rec-actions">
-            <button type="button" className="btn-text-muted" onClick={() => setDismissed(true)}>
-              Dismiss
-            </button>
-            <button type="button" className="btn-text-blue" onClick={() => setExpanded(true)}>
-              View Details
-            </button>
-          </div>
-        )}
-
-        {expanded && (
-          <button type="button" className="collapse-btn" onClick={() => setExpanded(false)}>
-            ▲
+        <p className="rec-detail" style={{ marginBottom: 12 }}>{rec.detail}</p>
+        <div className="rec-actions">
+          <button type="button" className="btn-text-muted" onClick={() => setDismissed(true)}>
+            Dismiss
           </button>
-        )}
+          <button type="button" className="btn-text-blue" onClick={onCtaPress}>
+            See how it works →
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -555,74 +516,86 @@ function NotificationDetailsScreen({
   );
 }
 
-function InvestmentFlowScreen({
+// Screen 2 — TFSA explainer with video
+function ExplainerScreen({
+  persona,
+  onBack,
+  onOpenAccount,
+}: {
+  persona: Persona;
+  onBack: () => void;
+  onOpenAccount: () => void;
+}) {
+  const rec = persona.recommendation;
+  return (
+    <div className="overlay">
+      <div className="overlay-header">
+        <button type="button" className="back-btn" onClick={onBack}>←</button>
+        <span className="overlay-title">{persona.modelOutput.product} Explainer</span>
+        <span style={{ width: 24 }} />
+      </div>
+      <div className="overlay-body" style={{ paddingTop: 0 }}>
+        <div className="explainer-video-wrap">
+          <video
+            className="explainer-video"
+            src="/vids/example.mp4"
+            autoPlay
+            controls
+            playsInline
+          />
+        </div>
+        <h2 className="invest-title" style={{ marginTop: 16 }}>
+          What is a {persona.modelOutput.product}?
+        </h2>
+        <p className="rec-detail" style={{ marginBottom: 14 }}>{rec.detail}</p>
+        <div className="outcome-box">
+          <p className="outcome-label">Projected outcome</p>
+          <p className="outcome-text">{rec.projectedOutcome}</p>
+        </div>
+        <button type="button" className="btn-primary" style={{ marginTop: 20 }} onClick={onOpenAccount}>
+          Open my {persona.modelOutput.product} — $25 to start
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Screen 3 — one-tap account opening
+function AccountOpenScreen({
   persona,
   onBack,
 }: {
   persona: Persona;
   onBack: () => void;
 }) {
-  const rec = persona.recommendation;
-  const isEmailChannel = persona.modelOutput.channel.includes('email');
+  const [confirmed, setConfirmed] = useState(false);
 
-  if (isEmailChannel) {
+  if (confirmed) {
     return (
       <div className="overlay">
         <div className="overlay-header">
-          <button type="button" className="back-btn" onClick={onBack}>
-            ←
-          </button>
-          <span className="overlay-title">Smart Investor</span>
+          <span style={{ width: 24 }} />
+          <span className="overlay-title">Account Opened</span>
           <span style={{ width: 24 }} />
         </div>
-        <div className="overlay-body">
-          <div className="hero-icon">✉️</div>
-          <h2 className="invest-title">Check your inbox, {persona.userProfile.firstName}</h2>
-          <p className="invest-sub">
-            We've sent a personalized RRSP breakdown to your email — including your estimated
-            tax savings and contribution room based on your income.
+        <div className="overlay-body" style={{ textAlign: 'center', paddingTop: 48 }}>
+          <div style={{ fontSize: 64, marginBottom: 16 }}>✅</div>
+          <h2 className="invest-title">Your {persona.modelOutput.product} is open!</h2>
+          <p className="invest-sub" style={{ marginBottom: 24 }}>
+            Your first $25 contribution has been scheduled. Welcome to investing,{' '}
+            {persona.userProfile.firstName}.
           </p>
-          <div
-            className="info-card"
-            style={{ background: '#0d1f33', borderLeft: '3px solid #003366' }}
-          >
-            <p className="info-label">Sent to</p>
-            <p className="info-value">m*****s@gmail.com</p>
+          <div className="info-card">
+            <p className="info-label">Account</p>
+            <p className="info-value">{persona.modelOutput.product} — iTRADE</p>
           </div>
           <div className="info-card">
-            <p className="info-label">Recommended product</p>
-            <p className="info-value">{persona.modelOutput.product} via Smart Investor</p>
+            <p className="info-label">First contribution</p>
+            <p className="info-value" style={{ color: 'var(--green)' }}>$25.00 scheduled</p>
           </div>
-          <div className="info-card">
-            <p className="info-label">Projected outcome (20 yrs)</p>
-            <p className="info-value" style={{ color: 'var(--green)' }}>
-              ~$23,000 + tax refund
-            </p>
-          </div>
-          <button type="button" className="btn-primary" style={{ marginTop: 16 }}>
-            {rec.ctaLabel}
+          <button type="button" className="btn-primary" style={{ marginTop: 24 }} onClick={onBack}>
+            Back to home
           </button>
-          <button
-            type="button"
-            style={{
-              marginTop: 10,
-              width: '100%',
-              padding: '12px',
-              borderRadius: 8,
-              border: '1.5px solid rgba(255,255,255,0.2)',
-              background: 'transparent',
-              color: '#fff',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontSize: 14,
-            }}
-            onClick={() => alert('Advisor booking placeholder')}
-          >
-            Book a Scotia advisor call
-          </button>
-          <p style={{ fontSize: 11, color: '#888', textAlign: 'center', marginTop: 12 }}>
-            A Scotia advisor will follow up within 1 business day.
-          </p>
         </div>
       </div>
     );
@@ -631,36 +604,98 @@ function InvestmentFlowScreen({
   return (
     <div className="overlay">
       <div className="overlay-header">
-        <button type="button" className="back-btn" onClick={onBack}>
-          ←
-        </button>
-        <span className="overlay-title">iTRADE</span>
+        <button type="button" className="back-btn" onClick={onBack}>←</button>
+        <span className="overlay-title">Open Your {persona.modelOutput.product}</span>
         <span style={{ width: 24 }} />
       </div>
       <div className="overlay-body">
-        <div className="hero-icon">📈</div>
-        <h2 className="invest-title">Start investing in your TFSA</h2>
-        <p className="invest-sub">{rec.summary}</p>
+        <p className="invest-sub" style={{ marginBottom: 16 }}>
+          Your details are pre-filled from your Scotia profile. Review and confirm.
+        </p>
         <div className="info-card">
-          <p className="info-label">Suggested amount</p>
-          <p className="info-value">$25.00 / month</p>
+          <p className="info-label">Full name</p>
+          <p className="info-value">{persona.userProfile.firstName} ···</p>
         </div>
         <div className="info-card">
-          <p className="info-label">Projected outcome (10 yrs)</p>
-          <p className="info-value" style={{ color: 'var(--green)' }}>
-            ~$4,100 tax-free
-          </p>
+          <p className="info-label">SIN</p>
+          <p className="info-value">*** *** ***</p>
+        </div>
+        <div className="info-card">
+          <p className="info-label">Account type</p>
+          <p className="info-value">{persona.modelOutput.product} — iTRADE</p>
+        </div>
+        <div className="info-card">
+          <p className="info-label">First contribution</p>
+          <p className="info-value">$25.00</p>
+        </div>
+        <div className="info-card">
+          <p className="info-label">Funded from</p>
+          <p className="info-value">Preferred Package (Chequing)</p>
+        </div>
+        <button
+          type="button"
+          className="btn-primary"
+          style={{ marginTop: 24 }}
+          onClick={() => setConfirmed(true)}
+        >
+          Confirm &amp; Open Account
+        </button>
+        <p style={{ fontSize: 11, color: '#666', textAlign: 'center', marginTop: 10 }}>
+          By confirming you agree to Scotia's iTRADE account terms.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Marcus email confirmation screen
+function EmailConfirmationScreen({
+  persona,
+  onBack,
+}: {
+  persona: Persona;
+  onBack: () => void;
+}) {
+  const rec = persona.recommendation;
+  return (
+    <div className="overlay">
+      <div className="overlay-header">
+        <button type="button" className="back-btn" onClick={onBack}>←</button>
+        <span className="overlay-title">Smart Investor</span>
+        <span style={{ width: 24 }} />
+      </div>
+      <div className="overlay-body">
+        <div className="hero-icon">✉️</div>
+        <h2 className="invest-title">Check your inbox, {persona.userProfile.firstName}</h2>
+        <p className="invest-sub">
+          We've sent a personalized RRSP breakdown to your email — including your estimated
+          tax savings and contribution room based on your income.
+        </p>
+        <div className="info-card" style={{ background: '#0d1f33', borderLeft: '3px solid #003366' }}>
+          <p className="info-label">Sent to</p>
+          <p className="info-value">m*****s@gmail.com</p>
+        </div>
+        <div className="info-card">
+          <p className="info-label">Recommended product</p>
+          <p className="info-value">{persona.modelOutput.product} via Smart Investor</p>
+        </div>
+        <div className="info-card">
+          <p className="info-label">Projected outcome (20 yrs)</p>
+          <p className="info-value" style={{ color: 'var(--green)' }}>~$23,000 + tax refund</p>
         </div>
         <button type="button" className="btn-primary" style={{ marginTop: 16 }}>
-          Continue
+          {rec.ctaLabel}
         </button>
         <button
           type="button"
-          className="learn-more"
-          style={{ marginTop: 16, display: 'block', width: '100%' }}
+          style={{ marginTop: 10, width: '100%', padding: '12px', borderRadius: 8, border: '1.5px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: 14 }}
+          onClick={() => alert('Advisor booking placeholder')}
         >
-          Learn about TFSAs
+          Book a Scotia advisor call
         </button>
+        <p style={{ fontSize: 11, color: '#888', textAlign: 'center', marginTop: 12 }}>
+          A Scotia advisor will follow up within 1 business day.
+        </p>
       </div>
     </div>
   );
@@ -729,7 +764,9 @@ export default function App() {
             depositTriggered={depositTriggered}
             onNotificationPress={(id) => setOverlay({ type: 'notification', id })}
             onAccountPress={(id) => setOverlay({ type: 'account', id })}
-            onInvestmentPress={() => setOverlay({ type: 'investment' })}
+            onInvestmentPress={() =>
+              setOverlay({ type: activePersona === 'sarah' ? 'explainer' : 'investment' })
+            }
           />
         );
       case 'moveMoney':
@@ -794,8 +831,18 @@ export default function App() {
             onBack={() => setOverlay(null)}
           />
         )}
+        {overlay?.type === 'explainer' && (
+          <ExplainerScreen
+            persona={persona}
+            onBack={() => setOverlay(null)}
+            onOpenAccount={() => setOverlay({ type: 'account-open' })}
+          />
+        )}
+        {overlay?.type === 'account-open' && (
+          <AccountOpenScreen persona={persona} onBack={() => setOverlay(null)} />
+        )}
         {overlay?.type === 'investment' && (
-          <InvestmentFlowScreen persona={persona} onBack={() => setOverlay(null)} />
+          <EmailConfirmationScreen persona={persona} onBack={() => setOverlay(null)} />
         )}
       </div>
     </div>

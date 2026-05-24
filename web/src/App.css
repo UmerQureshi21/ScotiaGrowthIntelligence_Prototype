@@ -879,6 +879,21 @@
   color: var(--text);
 }
 
+/* Explainer video */
+.explainer-video-wrap {
+  width: calc(100% + 32px);
+  margin-left: -16px;
+  background: #000;
+  line-height: 0;
+}
+
+.explainer-video {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
 .overlay-body {
   flex: 1;
   overflow-y: auto;
@@ -1010,3 +1025,4 @@
   line-height: 1.5;
   margin-bottom: 32px;
 }
+
