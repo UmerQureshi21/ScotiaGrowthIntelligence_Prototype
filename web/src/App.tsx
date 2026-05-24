@@ -13,7 +13,6 @@ type TabId = 'home' | 'moveMoney' | 'advice' | 'scene' | 'more';
 type Overlay =
   | { type: 'account'; id: string }
   | { type: 'notification'; id: string }
-  | { type: 'explainer' }
   | { type: 'account-open' }
   | { type: 'investment' }
   | null;
@@ -267,7 +266,23 @@ function RecommendationBanner({
   );
 }
 
-// Bottom sheet modal — Sarah (in-app card) only
+// Bouncing bubble — appears after trigger, click opens the sheet
+function NotificationBubble({
+  persona,
+  onClick,
+}: {
+  persona: Persona;
+  onClick: () => void;
+}) {
+  return (
+    <button type="button" className="notif-bubble" onClick={onClick}>
+      <span className="notif-bubble-icon">✦</span>
+      <span className="notif-bubble-text">{persona.recommendation.summary}</span>
+    </button>
+  );
+}
+
+// Bottom sheet modal — Sarah (in-app card) only, now includes video
 function RecommendationBottomSheet({
   persona,
   onDismiss,
@@ -283,20 +298,29 @@ function RecommendationBottomSheet({
       <div className="sheet-backdrop" onClick={onDismiss} />
       <div className="bottom-sheet">
         <div className="sheet-handle" />
-        <div className="rec-header" style={{ marginBottom: 10 }}>
-          <span className="rec-icon">✦</span>
-          <p className="rec-summary">{rec.summary}</p>
+        <div className="sheet-video-wrap">
+          <video
+            className="explainer-video"
+            src="/vids/example.mp4"
+            autoPlay
+            controls
+            playsInline
+          />
         </div>
-        <p className="rec-detail" style={{ marginBottom: 16 }}>{rec.detail}</p>
-        <div className="outcome-box" style={{ marginBottom: 20 }}>
-          <p className="outcome-label">Projected outcome</p>
-          <p className="outcome-text">{rec.projectedOutcome}</p>
-        </div>
+        <h2 className="invest-title" style={{ marginTop: 16, marginBottom: 8 }}>
+          What is a {persona.modelOutput.product}?
+        </h2>
+        <p className="rec-detail" style={{ marginBottom: 20 }}>{rec.detail}</p>
         <button type="button" className="btn-primary" onClick={onContinue}>
-          See how it works →
+          Open my {persona.modelOutput.product} — $25 to start
         </button>
-        <button type="button" className="btn-text-muted" style={{ width: '100%', marginTop: 12, padding: '8px' }} onClick={onDismiss}>
-          Dismiss
+        <button
+          type="button"
+          className="btn-text-muted"
+          style={{ width: '100%', marginTop: 12, padding: '8px' }}
+          onClick={onDismiss}
+        >
+          Not right now
         </button>
       </div>
     </>
@@ -550,49 +574,6 @@ function NotificationDetailsScreen({
 }
 
 // Screen 2 — TFSA explainer with video
-function ExplainerScreen({
-  persona,
-  onBack,
-  onOpenAccount,
-}: {
-  persona: Persona;
-  onBack: () => void;
-  onOpenAccount: () => void;
-}) {
-  const rec = persona.recommendation;
-  return (
-    <div className="overlay">
-      <div className="overlay-header">
-        <button type="button" className="back-btn" onClick={onBack}>←</button>
-        <span className="overlay-title">{persona.modelOutput.product} Explainer</span>
-        <span style={{ width: 24 }} />
-      </div>
-      <div className="overlay-body" style={{ paddingTop: 0 }}>
-        <div className="explainer-video-wrap">
-          <video
-            className="explainer-video"
-            src="/vids/example.mp4"
-            autoPlay
-            controls
-            playsInline
-          />
-        </div>
-        <h2 className="invest-title" style={{ marginTop: 16 }}>
-          What is a {persona.modelOutput.product}?
-        </h2>
-        <p className="rec-detail" style={{ marginBottom: 14 }}>{rec.detail}</p>
-        <div className="outcome-box">
-          <p className="outcome-label">Projected outcome</p>
-          <p className="outcome-text">{rec.projectedOutcome}</p>
-        </div>
-        <button type="button" className="btn-primary" style={{ marginTop: 20 }} onClick={onOpenAccount}>
-          Open my {persona.modelOutput.product} — $25 to start
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // Screen 3 — one-tap account opening
 function AccountOpenScreen({
   persona,
@@ -760,6 +741,7 @@ export default function App() {
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [triggered, setTriggered] = useState<Record<'sarah' | 'marcus', boolean>>({ sarah: false, marcus: false });
   const [recDismissed, setRecDismissed] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [emailStatus, setEmailStatus] = useState<EmailStatus>('idle');
 
   const persona = activePersona === 'sarah' ? sarahPersona : marcusPersona;
@@ -770,6 +752,7 @@ export default function App() {
     setOverlay(null);
     setActiveTab('home');
     setRecDismissed(false);
+    setSheetOpen(false);
   };
 
   const handleTrigger = async () => {
@@ -800,7 +783,7 @@ export default function App() {
             onNotificationPress={(id) => setOverlay({ type: 'notification', id })}
             onAccountPress={(id) => setOverlay({ type: 'account', id })}
             onInvestmentPress={() =>
-              setOverlay({ type: activePersona === 'sarah' ? 'explainer' : 'investment' })
+              activePersona === 'sarah' ? setSheetOpen(true) : setOverlay({ type: 'investment' })
             }
           />
         );
@@ -866,24 +849,20 @@ export default function App() {
             onBack={() => setOverlay(null)}
           />
         )}
-        {overlay?.type === 'explainer' && (
-          <ExplainerScreen
-            persona={persona}
-            onBack={() => setOverlay(null)}
-            onOpenAccount={() => setOverlay({ type: 'account-open' })}
-          />
-        )}
         {overlay?.type === 'account-open' && (
           <AccountOpenScreen persona={persona} onBack={() => setOverlay(null)} />
         )}
         {overlay?.type === 'investment' && (
           <EmailConfirmationScreen persona={persona} onBack={() => setOverlay(null)} />
         )}
-        {activePersona === 'sarah' && depositTriggered && !recDismissed && !overlay && (
+        {activePersona === 'sarah' && depositTriggered && !recDismissed && !overlay && !sheetOpen && (
+          <NotificationBubble persona={persona} onClick={() => setSheetOpen(true)} />
+        )}
+        {activePersona === 'sarah' && sheetOpen && !overlay && (
           <RecommendationBottomSheet
             persona={persona}
-            onDismiss={() => setRecDismissed(true)}
-            onContinue={() => { setRecDismissed(true); setOverlay({ type: 'explainer' }); }}
+            onDismiss={() => { setSheetOpen(false); setRecDismissed(true); }}
+            onContinue={() => { setSheetOpen(false); setOverlay({ type: 'account-open' }); }}
           />
         )}
       </div>

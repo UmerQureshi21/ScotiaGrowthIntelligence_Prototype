@@ -16,7 +16,6 @@ export interface NotificationItem {
 export interface RecommendationOutput {
   summary: string;
   detail: string;
-  projectedOutcome: string;
   ctaLabel: string;
   learnMoreUrl: string;
 }
@@ -61,8 +60,6 @@ export const sarahPersona: Persona = {
     summary: 'Invest $25 into your TFSA using iTRADE',
     detail:
       'Based on your monthly cash flow, you have surplus savings that could grow tax-free in a TFSA. Starting with $25/month builds the habit without impacting day-to-day spending.',
-    projectedOutcome:
-      'At 6% annual return, $25/month over 10 years could grow to approximately $4,100 — all tax-free.',
     ctaLabel: 'Open iTRADE',
     learnMoreUrl: 'https://example.com/tfsa-basics',
   },
@@ -90,8 +87,6 @@ export const marcusPersona: Persona = {
     summary: 'Your rising income means bigger RRSP tax savings — start now',
     detail:
       'Your salary has grown 15% over the last 3 months. An RRSP contribution reduces your taxable income dollar-for-dollar. Starting at $50/month locks in savings before the March deadline.',
-    projectedOutcome:
-      'At 6% annual return, $50/month over 20 years grows to ~$23,000 — plus a tax refund this spring based on your income bracket.',
     ctaLabel: 'Open Smart Investor',
     learnMoreUrl: 'https://example.com/rrsp-basics',
   },
