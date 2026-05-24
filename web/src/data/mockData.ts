@@ -48,18 +48,11 @@ export const sarahPersona: Persona = {
     { id: '1', name: 'Preferred Package', balance: 12450.32, type: 'Chequing' },
     { id: '2', name: 'Money Master', balance: 8320.75, type: 'Savings' },
   ],
-  notifications: [
-    {
-      id: '1',
-      title: 'Verify your contact information',
-      description: 'Please confirm your email and phone number to keep your account secure.',
-      date: 'Today',
-    },
-  ],
+  notifications: [],
   recommendation: {
-    summary: 'Invest $25 into your TFSA using iTRADE',
+    summary: 'Invest $25 into your TFSA — your tax refund can grow tax-free',
     detail:
-      'Based on your monthly cash flow, you have surplus savings that could grow tax-free in a TFSA. Starting with $25/month builds the habit without impacting day-to-day spending.',
+      'You have $4,200 sitting idle in chequing. A TFSA lets that money grow completely tax-free. Starting with just $25 from your refund builds the habit — and every dollar of growth stays yours.',
     ctaLabel: 'Open iTRADE',
     learnMoreUrl: 'https://example.com/tfsa-basics',
   },
@@ -86,7 +79,7 @@ export const marcusPersona: Persona = {
   recommendation: {
     summary: 'Your rising income means bigger RRSP tax savings — start now',
     detail:
-      'Your salary has grown 15% over the last 3 months. An RRSP contribution reduces your taxable income dollar-for-dollar. Starting at $50/month locks in savings before the March deadline.',
+      'Your salary has grown 15% over the last 3 months. An RRSP contribution reduces your taxable income dollar-for-dollar. Starting at $50/month locks in savings before the March deadline. A Scotia advisor can walk you through your contribution room.',
     ctaLabel: 'Open Smart Investor',
     learnMoreUrl: 'https://example.com/rrsp-basics',
   },

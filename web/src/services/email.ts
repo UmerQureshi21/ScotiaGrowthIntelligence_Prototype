@@ -10,64 +10,85 @@ export async function sendMarcusTriggerEmail(): Promise<void> {
 <html>
 <head>
 <meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <style>
-  body{background:#0a0a0a;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0;padding:0}
-  .wrap{max-width:480px;margin:0 auto;padding:32px 24px}
-  .logo{font-size:26px;font-weight:800;color:#ec111a;letter-spacing:-0.5px;padding-bottom:16px;border-bottom:2px solid #ec111a;margin-bottom:24px}
-  .badge{display:inline-block;background:rgba(236,17,26,.15);color:#ec111a;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-bottom:14px}
-  .title{font-size:21px;font-weight:700;line-height:1.3;margin-bottom:6px}
-  .sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:24px}
-  .box{background:#141414;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;margin-bottom:12px}
-  .box-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin-bottom:4px}
-  .box-val{font-size:15px;font-weight:600}
-  .green{color:#34c759}
-  .chips{display:flex;gap:10px;margin-bottom:20px}
-  .chip{flex:1;background:#141414;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 8px;text-align:center}
-  .chip-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.4);margin-bottom:4px}
-  .chip-val{font-size:14px;font-weight:700;color:#ec111a}
-  .body-txt{font-size:14px;line-height:1.65;color:rgba(255,255,255,.75);margin-bottom:24px}
-  .btn-primary{display:block;background:#ec111a;color:#fff;text-decoration:none;text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:700;margin-bottom:10px}
-  .btn-sec{display:block;background:transparent;color:#fff;text-decoration:none;text-align:center;padding:13px;border-radius:10px;font-size:14px;font-weight:600;border:1.5px solid rgba(255,255,255,.2);margin-bottom:28px}
-  .footer{font-size:11px;color:rgba(255,255,255,.3);line-height:1.6;border-top:1px solid rgba(255,255,255,.08);padding-top:14px}
-  .footer a{color:rgba(255,255,255,.35);text-decoration:none}
+  body { margin:0; padding:0; background:#f4f4f4; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; }
+  .outer { background:#f4f4f4; padding:32px 16px; }
+  .card { background:#ffffff; max-width:520px; margin:0 auto; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+  .header { background:#ec111a; padding:24px 32px; }
+  .header-logo { color:#ffffff; font-size:22px; font-weight:800; letter-spacing:-0.5px; margin:0; }
+  .header-tag { color:rgba(255,255,255,0.75); font-size:12px; margin:4px 0 0; }
+  .body { padding:32px; }
+  .greeting { font-size:20px; font-weight:700; color:#111111; margin:0 0 6px; line-height:1.3; }
+  .trigger-line { font-size:13px; color:#888888; margin:0 0 28px; }
+  .divider { height:1px; background:#eeeeee; margin:0 0 24px; }
+  .row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #f0f0f0; }
+  .row:last-child { border-bottom:none; }
+  .row-label { font-size:13px; color:#666666; }
+  .row-val { font-size:14px; font-weight:600; color:#111111; }
+  .row-val.green { color:#1a9e3f; }
+  .row-val.red { color:#ec111a; }
+  .insight-box { background:#fff8f8; border-left:3px solid #ec111a; border-radius:0 8px 8px 0; padding:14px 16px; margin:24px 0; }
+  .insight-text { font-size:14px; color:#333333; line-height:1.6; margin:0; }
+  .btn-primary { display:block; background:#ec111a; color:#ffffff; text-decoration:none; text-align:center; padding:14px 20px; border-radius:8px; font-size:15px; font-weight:700; margin:24px 0 10px; }
+  .btn-secondary { display:block; background:#ffffff; color:#333333; text-decoration:none; text-align:center; padding:13px 20px; border-radius:8px; font-size:14px; font-weight:600; border:1.5px solid #dddddd; margin-bottom:28px; }
+  .footer { padding:0 32px 28px; }
+  .footer-text { font-size:11px; color:#aaaaaa; line-height:1.7; border-top:1px solid #eeeeee; padding-top:16px; margin:0; }
+  .footer-text a { color:#888888; text-decoration:underline; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="logo">Scotiabank</div>
-  <span class="badge">Scotia Growth Intelligence</span>
-  <div class="title">Marcus, we noticed a deposit — your next step is ready.</div>
-  <div class="sub">Triggered: CRA Tax Refund detected · May 23, 2026</div>
+<div class="outer">
+  <div class="card">
 
-  <div class="box">
-    <div class="box-label">Deposit detected</div>
-    <div class="box-val green">+$1,500.00 — CRA Tax Refund</div>
-  </div>
-  <div class="box" style="margin-bottom:20px">
-    <div class="box-label">Idle cash in chequing</div>
-    <div class="box-val">$11,310.44 sitting uninvested</div>
-  </div>
+    <div class="header">
+      <p class="header-logo">Scotiabank</p>
+      <p class="header-tag">Scotia Growth Intelligence · Personalized Insight</p>
+    </div>
 
-  <div class="chips">
-    <div class="chip"><div class="chip-lbl">Likelihood</div><div class="chip-val">0.67</div></div>
-    <div class="chip"><div class="chip-lbl">Product</div><div class="chip-val">RRSP</div></div>
-    <div class="chip"><div class="chip-lbl">Channel</div><div class="chip-val">Email</div></div>
-  </div>
+    <div class="body">
+      <p class="greeting">Marcus, your salary growth unlocks a real tax advantage.</p>
+      <p class="trigger-line">Trigger detected: Salary growth pattern · May 24, 2026</p>
 
-  <div class="body-txt">
-    Your salary has grown 15% over the last 3 months — and now a tax refund just landed.
-    An RRSP contribution reduces your taxable income dollar-for-dollar. Starting at $50/month
-    could put money back in your pocket this spring, while your savings compound over time.
-    Scotia advisors are available to walk you through it at no cost.
-  </div>
+      <div class="divider"></div>
 
-  <a href="#" class="btn-primary">Open Smart Investor — Start Your RRSP</a>
-  <a href="#" class="btn-sec">Book a Scotia Advisor Call</a>
+      <div class="row">
+        <span class="row-label">Salary growth (last 3 months)</span>
+        <span class="row-val green">+15%</span>
+      </div>
+      <div class="row">
+        <span class="row-label">Idle cash in chequing</span>
+        <span class="row-val">$11,310.44</span>
+      </div>
+      <div class="row">
+        <span class="row-label">Recommended product</span>
+        <span class="row-val red">RRSP</span>
+      </div>
+      <div class="row">
+        <span class="row-label">Conversion likelihood</span>
+        <span class="row-val">0.67</span>
+      </div>
 
-  <div class="footer">
-    This message was sent because you have investment insights enabled in your Scotia app.<br/>
-    Scotia Growth Intelligence &nbsp;·&nbsp; PIPEDA compliant &nbsp;·&nbsp; Opt-in service<br/>
-    <a href="#">Manage preferences</a> &nbsp;·&nbsp; <a href="#">Unsubscribe</a>
+      <div class="insight-box">
+        <p class="insight-text">
+          An RRSP contribution reduces your taxable income dollar-for-dollar. At your income level,
+          starting at $50/month could mean a meaningful refund next tax season — while your savings
+          compound over time. A Scotia advisor can walk you through your contribution room at no cost.
+        </p>
+      </div>
+
+      <a href="#" class="btn-primary">Open Smart Investor — Start Your RRSP</a>
+      <a href="#" class="btn-secondary">Book a Scotia Advisor Call</a>
+    </div>
+
+    <div class="footer">
+      <p class="footer-text">
+        You received this because investment insights are enabled in your Scotia app.<br/>
+        Scotia Growth Intelligence &nbsp;·&nbsp; PIPEDA compliant &nbsp;·&nbsp; Opt-in service<br/>
+        <a href="#">Manage preferences</a> &nbsp;·&nbsp; <a href="#">Unsubscribe</a>
+      </p>
+    </div>
+
   </div>
 </div>
 </body>
@@ -82,7 +103,7 @@ export async function sendMarcusTriggerEmail(): Promise<void> {
     body: JSON.stringify({
       from: 'Scotia Growth Intelligence <onboarding@resend.dev>',
       to: [RECIPIENT],
-      subject: "Marcus, we noticed a deposit — your next step is ready",
+      subject: "Marcus, your salary growth unlocks a real tax advantage",
       html,
     }),
   });
