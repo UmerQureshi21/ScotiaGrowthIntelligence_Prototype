@@ -1,3 +1,246 @@
+/* Demo layout: side panel + phone side by side */
+.demo-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 28px;
+  padding: 40px 32px;
+  min-height: 100vh;
+  background: #0a0a0a;
+}
+
+/* ── Side Panel ── */
+.side-panel {
+  width: 210px;
+  flex-shrink: 0;
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: sticky;
+  top: 40px;
+}
+
+.sp-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.25);
+  margin-bottom: 14px;
+}
+
+.sp-section {
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sp-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.sp-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  margin-bottom: 8px;
+}
+
+.sp-persona-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  text-align: left;
+  margin-bottom: 4px;
+  transition: all 0.15s;
+}
+
+.sp-persona-btn.active {
+  background: rgba(236, 17, 26, 0.1);
+  border-color: rgba(236, 17, 26, 0.3);
+  color: #fff;
+}
+
+.sp-persona-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.sp-persona-btn.active .sp-persona-dot {
+  background: #ec111a;
+}
+
+.sp-persona-name {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.sp-persona-meta {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 1px;
+}
+
+.sp-persona-btn.active .sp-persona-meta {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.sp-model-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.sp-model-cell {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 8px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sp-model-full {
+  grid-column: span 2;
+}
+
+.sp-model-key {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.sp-model-val {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ec111a;
+}
+
+.sp-model-muted {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.sp-trigger-btn {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(236, 17, 26, 0.5);
+  background: rgba(236, 17, 26, 0.08);
+  color: #ec111a;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  margin-bottom: 12px;
+}
+
+.sp-trigger-btn:hover:not(:disabled) {
+  background: rgba(236, 17, 26, 0.18);
+}
+
+.sp-trigger-btn:disabled {
+  border-color: rgba(52, 199, 89, 0.4);
+  background: rgba(52, 199, 89, 0.08);
+  color: #34c759;
+  cursor: default;
+}
+
+.sp-status-track {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.sp-status-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.sp-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.status-done .sp-status-dot { background: #34c759; }
+.status-done { color: rgba(255, 255, 255, 0.65); }
+
+.status-active .sp-status-dot {
+  background: #ec111a;
+  box-shadow: 0 0 6px #ec111a;
+  animation: pulse 1s infinite;
+}
+.status-active { color: #fff; }
+
+.status-error .sp-status-dot { background: #ff453a; }
+.status-error { color: #ff453a; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Deposit transaction row */
+.deposit-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(52, 199, 89, 0.08);
+  border: 1px solid rgba(52, 199, 89, 0.2);
+  border-radius: 8px;
+  margin-top: 4px;
+}
+
+.deposit-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34c759;
+  flex-shrink: 0;
+}
+
+.deposit-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  flex: 1;
+}
+
+.deposit-amount {
+  font-size: 12px;
+  font-weight: 700;
+  color: #34c759;
+}
+
 /* Phone frame */
 .phone {
   width: 390px;
