@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  ahmedPersona,
+  sarahPersona,
   marcusPersona,
   formatCurrency,
   greeting,
@@ -40,13 +40,13 @@ function SidePanel({
   emailStatus,
   onTrigger,
 }: {
-  activePersona: 'ahmed' | 'marcus';
-  onPersonaChange: (p: 'ahmed' | 'marcus') => void;
+  activePersona: 'sarah' | 'marcus';
+  onPersonaChange: (p: 'sarah' | 'marcus') => void;
   depositTriggered: boolean;
   emailStatus: EmailStatus;
   onTrigger: () => void;
 }) {
-  const persona = activePersona === 'ahmed' ? ahmedPersona : marcusPersona;
+  const persona = activePersona === 'sarah' ? sarahPersona : marcusPersona;
 
   return (
     <aside className="side-panel">
@@ -57,12 +57,12 @@ function SidePanel({
         <p className="sp-label">Persona</p>
         <button
           type="button"
-          className={`sp-persona-btn ${activePersona === 'ahmed' ? 'active' : ''}`}
-          onClick={() => onPersonaChange('ahmed')}
+          className={`sp-persona-btn ${activePersona === 'sarah' ? 'active' : ''}`}
+          onClick={() => onPersonaChange('sarah')}
         >
           <span className="sp-persona-dot" />
           <div>
-            <div className="sp-persona-name">Muhammad Ahmed</div>
+            <div className="sp-persona-name">Sarah</div>
             <div className="sp-persona-meta">Age 26 · TFSA · In-app</div>
           </div>
         </button>
@@ -102,9 +102,8 @@ function SidePanel({
         </div>
       </div>
 
-      {/* Trigger events — Marcus only */}
-      {activePersona === 'marcus' && (
-        <div className="sp-section">
+      {/* Trigger events — both personas */}
+      <div className="sp-section">
           <p className="sp-label">Trigger Events</p>
           <button
             type="button"
@@ -115,7 +114,7 @@ function SidePanel({
             {depositTriggered ? '✓  Tax Refund Deposited' : '💸  Simulate Tax Refund'}
           </button>
 
-          {emailStatus !== 'idle' && (
+          {activePersona === 'marcus' && emailStatus !== 'idle' && (
             <div className="sp-status-track">
               <StatusRow
                 label="Deposit posted"
@@ -142,7 +141,6 @@ function SidePanel({
             </div>
           )}
         </div>
-      )}
     </aside>
   );
 }
@@ -235,17 +233,21 @@ function AttentionCard({
 
 function RecommendationBanner({
   persona,
+  depositTriggered,
   onCtaPress,
 }: {
   persona: Persona;
+  depositTriggered: boolean;
   onCtaPress: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const [visible, setVisible] = useState(true);
+  const [dismissed, setDismissed] = useState(false);
   const [dontShow, setDontShow] = useState(false);
   const rec = persona.recommendation;
+  const isInApp = persona.modelOutput.channel === 'in-app card';
 
-  if (!visible) return null;
+  if (dismissed) return null;
+  if (isInApp && !depositTriggered) return null;
 
   return (
     <div className="rec-wrap">
@@ -288,7 +290,7 @@ function RecommendationBanner({
 
         {!expanded && (
           <div className="rec-actions">
-            <button type="button" className="btn-text-muted" onClick={() => setVisible(false)}>
+            <button type="button" className="btn-text-muted" onClick={() => setDismissed(true)}>
               Dismiss
             </button>
             <button type="button" className="btn-text-blue" onClick={() => setExpanded(true)}>
@@ -418,7 +420,7 @@ function HomeScreen({
     <div className="phone-content">
       <Header persona={persona} />
       <AttentionCard persona={persona} onItemPress={onNotificationPress} />
-      <RecommendationBanner persona={persona} onCtaPress={onInvestmentPress} />
+      <RecommendationBanner persona={persona} depositTriggered={depositTriggered} onCtaPress={onInvestmentPress} />
       <AccountOverviewCard
         persona={persona}
         depositTriggered={depositTriggered}
@@ -685,36 +687,36 @@ function BottomTabBar({ active, onChange }: { active: TabId; onChange: (t: TabId
 // ─── Root ──────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [activePersona, setActivePersona] = useState<'ahmed' | 'marcus'>('ahmed');
+  const [activePersona, setActivePersona] = useState<'sarah' | 'marcus'>('sarah');
   const [activeTab, setActiveTab] = useState<TabId>('home');
   const [overlay, setOverlay] = useState<Overlay>(null);
-  const [depositTriggered, setDepositTriggered] = useState(false);
+  const [triggered, setTriggered] = useState<Record<'sarah' | 'marcus', boolean>>({ sarah: false, marcus: false });
   const [emailStatus, setEmailStatus] = useState<EmailStatus>('idle');
 
-  const persona = activePersona === 'ahmed' ? ahmedPersona : marcusPersona;
+  const persona = activePersona === 'sarah' ? sarahPersona : marcusPersona;
+  const depositTriggered = triggered[activePersona];
 
-  const handlePersonaChange = (p: 'ahmed' | 'marcus') => {
+  const handlePersonaChange = (p: 'sarah' | 'marcus') => {
     setActivePersona(p);
     setOverlay(null);
     setActiveTab('home');
-    setDepositTriggered(false);
-    setEmailStatus('idle');
   };
 
   const handleTrigger = async () => {
-    if (depositTriggered) return;
-    setDepositTriggered(true);
-    setEmailStatus('waiting');
+    if (triggered[activePersona]) return;
+    setTriggered((prev) => ({ ...prev, [activePersona]: true }));
 
-    await new Promise((r) => setTimeout(r, 2000));
-    setEmailStatus('sending');
-
-    try {
-      await sendMarcusTriggerEmail();
-      setEmailStatus('sent');
-    } catch (e) {
-      console.error(e);
-      setEmailStatus('error');
+    if (activePersona === 'marcus') {
+      setEmailStatus('waiting');
+      await new Promise((r) => setTimeout(r, 2000));
+      setEmailStatus('sending');
+      try {
+        await sendMarcusTriggerEmail();
+        setEmailStatus('sent');
+      } catch (e) {
+        console.error(e);
+        setEmailStatus('error');
+      }
     }
   };
 

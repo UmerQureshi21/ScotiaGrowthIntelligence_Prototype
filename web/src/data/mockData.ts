@@ -43,8 +43,8 @@ const greeting = () => {
 };
 export { greeting };
 
-export const ahmedPersona: Persona = {
-  userProfile: { firstName: 'Muhammad Ahmed' },
+export const sarahPersona: Persona = {
+  userProfile: { firstName: 'Sarah' },
   accounts: [
     { id: '1', name: 'Preferred Package', balance: 12450.32, type: 'Chequing' },
     { id: '2', name: 'Money Master', balance: 8320.75, type: 'Savings' },
@@ -109,12 +109,12 @@ export const marcusPersona: Persona = {
 };
 
 // Legacy exports so nothing else breaks
-export const userProfile = { firstName: ahmedPersona.userProfile.firstName, greeting };
-export const accounts = ahmedPersona.accounts;
+export const userProfile = { firstName: sarahPersona.userProfile.firstName, greeting };
+export const accounts = sarahPersona.accounts;
 export const totalBalance = accounts.reduce((sum, a) => sum + a.balance, 0);
-export const notifications = ahmedPersona.notifications;
-export const recommendationOutput = ahmedPersona.recommendation;
-export const financialSections = ahmedPersona.financialSections;
+export const notifications = sarahPersona.notifications;
+export const recommendationOutput = sarahPersona.recommendation;
+export const financialSections = sarahPersona.financialSections;
 
 export const formatCurrency = (amount: number) =>
   amount.toLocaleString('en-CA', { style: 'currency', currency: 'CAD' });
