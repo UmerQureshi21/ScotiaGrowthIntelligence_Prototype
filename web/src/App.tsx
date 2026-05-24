@@ -267,63 +267,86 @@ function RecommendationBanner({
 }
 
 // Bouncing bubble — appears after trigger, click opens the sheet
-function NotificationBubble({
-  persona,
-  onClick,
-}: {
-  persona: Persona;
-  onClick: () => void;
-}) {
-  return (
-    <button type="button" className="notif-bubble" onClick={onClick}>
-      <span className="notif-bubble-icon">✦</span>
-      <span className="notif-bubble-text">{persona.recommendation.summary}</span>
-    </button>
-  );
-}
-
-// Bottom sheet modal — Sarah (in-app card) only, now includes video
-function RecommendationBottomSheet({
-  persona,
+function InvestmentBar({
   onDismiss,
-  onContinue,
+  onOpenAccount,
 }: {
-  persona: Persona;
   onDismiss: () => void;
-  onContinue: () => void;
+  onOpenAccount: () => void;
 }) {
-  const rec = persona.recommendation;
-  return (
-    <>
-      <div className="sheet-backdrop" onClick={onDismiss} />
-      <div className="bottom-sheet">
-        <div className="sheet-handle" />
-        <div className="sheet-video-wrap">
-          <video
-            className="explainer-video"
-            src="/vids/example.mp4"
-            autoPlay
-            controls
-            playsInline
-          />
+  const [expanded, setExpanded] = useState(false);
+  const [dontAsk, setDontAsk] = useState(
+    () => localStorage.getItem('scotia_dontask') === 'true'
+  );
+
+  const handleDontAsk = (checked: boolean) => {
+    setDontAsk(checked);
+    if (checked) localStorage.setItem('scotia_dontask', 'true');
+    else localStorage.removeItem('scotia_dontask');
+  };
+
+  if (expanded) {
+    return (
+      <>
+        <div className="sheet-backdrop" onClick={() => setExpanded(false)} />
+        <div className="bottom-sheet invest-sheet">
+          <div className="sheet-handle" />
+          <p className="ibar-title">Investing with Scotiabank using Scotia iTRADE</p>
+          <p className="ibar-preview" style={{ marginBottom: 20 }}>
+            Backed by Scotiabank, it provides access to a wide range of investment products
+            including stocks and ETFs, enabling users to start building a diversified portfolio
+            at their own pace. It is a practical entry point for those seeking to develop
+            long-term investing habits with a trusted financial institution.
+          </p>
+          <p className="ibar-video-label">Learn about Scotia iTRADE</p>
+          <div className="sheet-video-wrap" style={{ marginBottom: 20 }}>
+            <video
+              className="explainer-video"
+              src="/vids/example.mp4"
+              
+              controls
+              playsInline
+            />
+          </div>
+          <label className="ibar-checkbox-row">
+            <input
+              type="checkbox"
+              checked={dontAsk}
+              onChange={(e) => handleDontAsk(e.target.checked)}
+            />
+            Do not ask again
+          </label>
+          <div className="ibar-actions" style={{ marginTop: 16 }}>
+            <button type="button" className="ibar-btn-dismiss" onClick={onDismiss}>
+              Dismiss
+            </button>
+            <button type="button" className="ibar-btn-primary" onClick={onOpenAccount}>
+              Open Account
+            </button>
+          </div>
         </div>
-        <h2 className="invest-title" style={{ marginTop: 16, marginBottom: 8 }}>
-          What is a {persona.modelOutput.product}?
-        </h2>
-        <p className="rec-detail" style={{ marginBottom: 20 }}>{rec.detail}</p>
-        <button type="button" className="btn-primary" onClick={onContinue}>
-          Open my {persona.modelOutput.product} — $25 to start
-        </button>
-        <button
-          type="button"
-          className="btn-text-muted"
-          style={{ width: '100%', marginTop: 12, padding: '8px' }}
-          onClick={onDismiss}
-        >
-          Not right now
-        </button>
+      </>
+    );
+  }
+
+  return (
+    <div className="invest-bubble">
+      <div className="invest-bubble-body">
+        <p className="invest-bubble-title">Invest $25 into your TFSA using Scotia iTRADE</p>
+        <p className="invest-bubble-sub">
+          Scotia iTRADE offers a secure and accessible platform for individuals looking to
+          begin investing with as little as $25.
+        </p>
+        <div className="invest-bubble-actions">
+          <button type="button" className="ibar-btn-dismiss" onClick={onDismiss}>
+            Dismiss
+          </button>
+          <button type="button" className="ibar-btn-primary" onClick={() => setExpanded(true)}>
+            View Details
+          </button>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -395,11 +418,17 @@ function AccountOverviewCard({
               </button>
             ))}
           {depositTriggered && (
-            <div className="deposit-toast">
-              <span className="deposit-dot" />
-              <span className="deposit-label">CRA Tax Refund</span>
-              <span className="deposit-amount">+$1,500.00</span>
-            </div>
+            <>
+              <p className="deposit-section-label">Recent transactions</p>
+              <div className="deposit-toast">
+                <div className="deposit-icon">↓</div>
+                <div className="deposit-info">
+                  <span className="deposit-label">CRA Tax Refund</span>
+                  <span className="deposit-sublabel">Deposited · Just now</span>
+                </div>
+                <span className="deposit-amount">+$1,500.00</span>
+              </div>
+            </>
           )}
           <div className="divider" />
           <div className="total-row">
@@ -741,7 +770,6 @@ export default function App() {
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [triggered, setTriggered] = useState<Record<'sarah' | 'marcus', boolean>>({ sarah: false, marcus: false });
   const [recDismissed, setRecDismissed] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
   const [emailStatus, setEmailStatus] = useState<EmailStatus>('idle');
 
   const persona = activePersona === 'sarah' ? sarahPersona : marcusPersona;
@@ -752,7 +780,6 @@ export default function App() {
     setOverlay(null);
     setActiveTab('home');
     setRecDismissed(false);
-    setSheetOpen(false);
   };
 
   const handleTrigger = async () => {
@@ -783,7 +810,7 @@ export default function App() {
             onNotificationPress={(id) => setOverlay({ type: 'notification', id })}
             onAccountPress={(id) => setOverlay({ type: 'account', id })}
             onInvestmentPress={() =>
-              activePersona === 'sarah' ? setSheetOpen(true) : setOverlay({ type: 'investment' })
+              setOverlay({ type: 'investment' })
             }
           />
         );
@@ -855,14 +882,10 @@ export default function App() {
         {overlay?.type === 'investment' && (
           <EmailConfirmationScreen persona={persona} onBack={() => setOverlay(null)} />
         )}
-        {activePersona === 'sarah' && depositTriggered && !recDismissed && !overlay && !sheetOpen && (
-          <NotificationBubble persona={persona} onClick={() => setSheetOpen(true)} />
-        )}
-        {activePersona === 'sarah' && sheetOpen && !overlay && (
-          <RecommendationBottomSheet
-            persona={persona}
-            onDismiss={() => { setSheetOpen(false); setRecDismissed(true); }}
-            onContinue={() => { setSheetOpen(false); setOverlay({ type: 'account-open' }); }}
+        {activePersona === 'sarah' && depositTriggered && !recDismissed && !overlay && (
+          <InvestmentBar
+            onDismiss={() => setRecDismissed(true)}
+            onOpenAccount={() => { setRecDismissed(true); setOverlay({ type: 'account-open' }); }}
           />
         )}
       </div>
