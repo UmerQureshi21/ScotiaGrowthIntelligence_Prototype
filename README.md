@@ -2,7 +2,7 @@
 
 CaseHacks 2026 · Scotiabank case · Team submission
 
-An ML engine that catches young Scotia depositors at the moment they're ready to invest — before they leave for Wealthsimple. Predicts readiness, picks the right product, and routes the nudge through the right channel.
+An ML engine that catches young Scotia depositors at the moment they're ready to invest, before they leave for Wealthsimple. Predicts readiness, picks the right product, and routes the nudge through the right channel.
 
 **Team:** Abishek · Ahmed · Shervin · Umer
 
